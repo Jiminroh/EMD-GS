@@ -1,0 +1,279 @@
+/* CSS Document */
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+body {
+  font-family: 'Open-Sans', sans-serif;
+  font-weight: 300;
+  background-color: white;
+}
+/* jm @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
+.slider-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.image-slider-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr); 
+  gap: 10px;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  transition: opacity 0.5s ease-in-out, visibility 0.5s;
+}
+
+.image-grid {
+  display: none; /* 초기에는 모든 그리드 숨김 */
+  grid-template-columns: repeat(2, 1fr); /* 2열 */
+  grid-template-rows: repeat(2, 1fr); /* 2행 */
+  gap: 0;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.video-grid.active {
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+}
+
+.image-grid.active {
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+}
+
+.video-grid video {
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  border-radius: 8px;
+}
+
+.image-grid img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.prev-btn,
+.next-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 10;
+}
+.prev-btn1,
+.next-btn1 {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.prev-btn {
+  left: 10px;
+}
+
+.next-btn {
+  right: 10px;
+}
+
+.prev-btn1 {
+  left: 10px;
+}
+
+.next-btn1 {
+  right: 10px;
+}
+
+button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.content {
+  width: 1000px;
+  padding: 25px 50px;
+  margin: 25px auto;
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0px 0px 10px #999;
+  border-radius: 15px;
+  font-family: "Google Sans";
+}
+
+.content_small {
+  width: 800px;
+  padding: 25px 50px;
+  margin: 25px auto;
+  background-color: white;
+  box-shadow: 0px 0px 10px #999;
+  border-radius: 15px;
+  font-family: "Google Sans";
+}
+
+.content_mask {
+  width: 900px;
+  padding: 25px 50px;
+  margin: 25px auto;
+  background-color: white;
+  box-shadow: 0px 0px 10px #999;
+  border-radius: 15px;
+  font-family: "Google Sans";
+}
+
+/* jm @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ */
+.contentblock {
+  width: 950px;
+  margin: 0 auto;
+  padding: 0;
+  border-spacing: 25px 0;
+}
+.contentblock td {
+  background-color: #fff;
+  padding: 25px 50px;
+  vertical-align: top;
+  box-shadow: 0px 0px 10px #999;
+  border-radius: 15px;
+}
+a, a:visited {
+  color: #224b8d;
+  font-weight: 300;
+}
+#authors {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+#conference {
+  text-align: center;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+#authors a {
+  margin: 0 10px;
+}
+h1 {
+  text-align: center;
+  font-size: 35px;
+  font-weight: 300;
+}
+h2 {
+  font-size: 30px;
+  font-weight: 300;
+}
+code {
+  display: block;
+  padding: 10px;
+  margin: 10px 10px;
+}
+p {
+  line-height: 25px;
+  text-align: justify;
+}
+p code {
+  display: inline;
+  padding: 0;
+  margin: 0;
+}
+#teasers {
+  margin: 0 auto;
+}
+#teasers td {
+  margin: 0 auto;
+  text-align: center;
+  padding: 5px;
+}
+#teasers img {
+  width: 250px;
+}
+#results img {
+  width: 133px;
+}
+#seeintodark {
+  margin: 0 auto;
+}
+#sift {
+  margin: 0 auto;
+}
+#sift img {
+  width: 250px;
+}
+.downloadpaper {
+  padding-left: 20px;
+  float: right;
+  text-align: center;
+}
+.downloadpaper a {
+  font-weight: bold;
+  text-align: center;
+}
+.teaser-img {
+  width: 80%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.teaser-gif {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.summary-img {
+  width: 100%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.video-iframe {
+  width: 1000;
+  height: 800;
+  margin: auto;
+  display: block;
+}
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center
+}
+.image {
+  flex-basis: 40%
+}
+.text {
+  font-size: 20px;
+  padding-left: 20px;
+}
+.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+.boxshadow {
+  border: 1px solid;
+  padding: 10px;
+  box-shadow: 2px 2px 5px #888888;
+}
+.spacertr {
+  height: 8px;
+}
+.spacertd {
+  width: 40px;
+}

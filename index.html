@@ -1,0 +1,372 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MoDyGS</title>
+<link href="./DreamBooth_files/style.css" rel="stylesheet">
+<script type="text/javascript" src="./DreamBooth_files/jquery.mlens-1.0.min.js"></script> 
+<script type="text/javascript" src="./DreamBooth_files/jquery.js"></script>
+<script type="text/javascript" src="./MoDyGS/slide.js" defer></script>
+<script type="text/javascript" src="./MoDyGS/slide_image.js" defer></script>
+</head>
+
+<body>
+<!-- 제목 -->
+<div class="content">
+  <h1><strong>Enhancing Monocular Dynamic Gaussian Splatting via Adaptive Pipeline Integration</strong></h1>
+  <p id="authors">
+    <!-- <span><a href="https://natanielruiz.github.io/"></a></span><a href="https://natanielruiz.github.io/">Nataniel Ruiz</a	> <a href="http://people.csail.mit.edu/yzli/">Yuanzhen Li</a> <a href="https://varunjampani.github.io/">Varun Jampani</a> <a href="https://research.google/people/106214/">Yael Pritch</a> <a href="http://people.csail.mit.edu/mrub/">Michael Rubinstein</a> <a href="https://kfiraberman.github.io/">Kfir Aberman</a><br>
+    <br> -->
+    <span style="font-size: 24px"> Anonymous ICCV submission</span>
+    <br><br>
+  <span>Paper ID 15368
+  </span>
+</p>
+  <br>
+  <h2 style="text-align:center;">Video Results on Various Datasets</h2>
+  <div class="content_small">
+    <p class="slider-title" style="text-align:center;"><b>Nvidia Dataset</b></p> 
+    <div class="slider-container">
+        <button class="prev-btn">&lt;</button> 
+        <div class="video-grid">
+            <video autoplay muted loop>
+                <source src="./MoDyGS/videos/balloon2.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop>
+                <source src="./MoDyGS/videos/playground.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop>
+                <source src="./MoDyGS/videos/truck.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop>
+                <source src="./MoDyGS/videos/umbrella.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="video-grid">
+            <video autoplay muted loop>
+                <source src="./MoDyGS/videos/3dprinter.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop>
+                <source src="./MoDyGS/videos/broom.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop>
+                <source src="./MoDyGS/videos/chicken.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop>
+                <source src="./MoDyGS/videos/banana.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="video-grid">
+          <video autoplay muted loop>
+              <source src="./MoDyGS/videos/apple.mp4" type="video/mp4">
+          </video>
+          <video autoplay muted loop>
+              <source src="./MoDyGS/videos/space_out.mp4" type="video/mp4">
+          </video>
+          <video autoplay muted loop>
+              <source src="./MoDyGS/videos/spin.mp4" type="video/mp4">
+          </video>
+          <video autoplay muted loop>
+              <source src="./MoDyGS/videos/teddy.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <button class="next-btn">&gt;</button>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- Abstract -->
+<div class="content">
+  <h2 style="text-align:center;">Abstract</h2>
+  <p>Reconstructing 4D dynamic scenes from monocular RGB video presents significant challenges, primarily due to the complexities involved in estimating depth, camera pose, and the motion of dynamic objects.
+    Recent studies have demonstrated the effectiveness of Gaussian-based spatial representations for modeling dynamic objects. However, there are still two main limitations.
+    First, most methods rely on Structure-from-Motion (SfM) algorithms to obtain point clouds and camera poses as initial parameters for Gaussian representations, which often yield unstable results for dynamic scenes.
+    Second, they typically do not explicitly separate static and dynamic regions, resulting in degraded the rendering quality of static areas.
+    To address these challenges, we introduce a novel monocular dynamic scene rendering framework that does not require pre-acquired camera poses or point clouds. Our method explicitly separates static and dynamic components, reconstructing dynamic objects within a canonical space.
+    Experimental evaluations using PSNR and LPIPS metrics demonstrate the superior rendering quality and spatial consistency of our approach in dynamic scenes.
+    Moreover, our framework offers seamless plug-and-play compatibility with existing 4D Gaussian Splatting methods, facilitating high-fidelity 4D scene reconstruction.</p>
+</div>
+
+<!-- Problem Setting -->
+<div class="content">
+  <h2 style="text-align:center;">Problem Setting</h2>
+  <p> Previous approaches rely on sparse points extracted from SfM, which do not provide  initial points for dynamic objects. In contrast, our method generates point clouds separately for static and dynamic regions. Additionally, previous approaches indiscriminately deform both dynamic and static points, thereby causing flickering on the other hand our approach deforms only dynamic points, thereby preserving stability in static regions. The results below illustrate the stability of our static regions and high rendering quality. Heatmaps, overlaid on the synthesized novel view, show the disparity compared to the ground truth.</p>
+  <br>
+  <img class="summary-img" src="./MoDyGS/new_figure/approach.jpg" style="width:100%;"> <br>
+</div>
+
+<!-- Method -->
+<div class="content">
+  <h2 style="text-align:center;" >Method</h2>
+
+  <div class="content_small">
+    <h3 style="text-align:center;">Overall pipeline</h3>
+    <p>RGB images are first processed using a pretrained model to extract monocular depth and a foreground mask. </p>
+    <img src="./MoDyGS/new_figure/main.jpg" class="teaser-gif" style="width:100%;"><br>
+  </div>
+  
+  <div class="content_small">
+    <h3 style="text-align:center;">Phase 1</h3>
+    <p>To ensure stable monocular dynamic scene reconstruction, we initialize the representation of static and dynamic regions separately from the point cloud level. Using RGB images and derived data, we progressively optimize the camera pose and depth parameters by focusing on the static regions.  The point cloud of dynamic objects passes through the Canonical Space Mapper (CSM) to construct its canonical position and form after being back-projected using the modified depth. </p>
+    <img src="./MoDyGS/new_figure/phase1.jpg" class="teaser-gif" style="width:100%;"><br>
+  </div>
+
+  <div class="content_small">
+    <h3 style="text-align:center;">Phase 2</h3>
+    <p>Gaussians in the canonical space are transformed to match the shape and position of each frame through a deformation network that takes time as an additional input. This explicit separation allows us to optimize the static and dynamic Gaussians independently. The gradient flow of optimization is adjusted to learn the camera pose, deformation network, and Gaussians in the canonical space. </p>
+    <img src="./MoDyGS/new_figure/phase2.jpg" class="teaser-gif" style="width:100%;"><br>
+  </div>
+</div>
+
+<!-- Result -->
+<div class="content">
+  <h2>Results</h2>
+  <p>Qualitative comparison of novel view synthesis results on the Nvida dataset and UCSD dataset. Previous methods struggle to generate accurate
+    novel views, exhibiting artifacts and inconsistencies. In contrast, our method achieves superior synthesis, demonstrating superior visual
+    quality and consistency. </p>
+  <img class="summary-img" src="./MoDyGS/new_figure/nvidia_result.jpg" style="width:100%;">
+  <img class="summary-img" src="./MoDyGS/new_figure/ucsd_result.jpg" style="width:100%;">
+</div>
+
+
+
+<!-- Ablation -->
+<div class="content">
+  <h2>Ablation</h2>
+  <p>Compared to the baseline model, our proposed framework demonstrates more accurate rendering for monocular dynamic scenes. Furthermore, as deformations evolve over time, our framework can be adapted to update its performance accordingly.</p>
+  <br>
+  <img class="summary-img" src="./MoDyGS/new_figure/ablation.jpg" style="width:100%;"> <br>
+
+  <div class="content_mask">
+    <p><b>Motion-aware Instance segmentation mask</b> <i>(e.g. SAM*)</i></p>
+    <p>After obtaining the optical flow using an optical flow estimation model, a pixel-level threshold is applied to the acquired optical flow to extract the top k points. These points represent the pixel coordinates with the most movement in each frame. Subsequently, these points are used as priors for SAM2 to obtain the segmentation mask.</p>
+    <br>
+    <img class="summary-img" src="./MoDyGS/new_figure/mask_generate1.jpg" style="width:100%;"> <br>
+  </div>
+</div>
+
+<!-- Plug-and-Play -->
+<div class="content">
+  <h2>Plug-and-Play</h2>
+  <p>Compared to the baseline model, our proposed framework demonstrates more accurate rendering for monocular dynamic scenes. Furthermore, as deformations evolve over time, our framework can be adapted to update its performance accordingly.</p>
+  <br>
+  <img class="summary-img" src="./MoDyGS/new_figure/pnp.jpg" style="width:100%;"> <br>
+</div>
+
+<!-- Flickering effect -->
+<div class="content">
+  <h2>Flickering effect</h2>
+  <p>Qualitative comparison of the difference map between rendered images and ground truth. This
+    heatmap illustrates deviations from the average of the rendered images, with brighter areas highlighting regions of significant flickering or
+    instability.</p>
+  <br>
+  
+  <div class="content_small">
+    <p class="img-slider-title" style="text-align:center;"><b>Nvidia Dataset</b></p> 
+    <div class="image-slider-container">
+      <button class="prev-btn1">&lt;</button> 
+        <div class="image-grid">
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/balloon1/4dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">4DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/balloon1/d3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">D3DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/balloon1/ed3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">E-D3DGS (ECCV24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/balloon1/ours_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">Ours</figcaption>
+          </figure>
+        </div>
+
+        <div class="image-grid">
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/balloon2/4dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">4DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/balloon2/d3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">D3DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/balloon2/ed3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">E-D3DGS (ECCV24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/balloon2/ours_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">Ours</figcaption>
+          </figure>
+        </div>
+
+        <div class="image-grid">
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/playground/4dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">4DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/playground/d3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">D3DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/playground/ed3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">E-D3DGS (ECCV24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/playground/ours_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">Ours</figcaption>
+          </figure>
+        </div>
+
+        <div class="image-grid">
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/jumping/4dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">4DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/jumping/d3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">D3DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/jumping/ed3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">E-D3DGS (ECCV24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/jumping/ours_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">Ours</figcaption>
+          </figure>
+        </div>
+
+        <div class="image-grid">
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/skating/4dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">4DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/skating/d3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">D3DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/skating/ed3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">E-D3DGS (ECCV24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/skating/ours_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">Ours</figcaption>
+          </figure>
+        </div>
+
+        <div class="image-grid">
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/truck/4dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">4DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/truck/d3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">D3DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/truck/ed3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">E-D3DGS (ECCV24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/truck/ours_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">Ours</figcaption>
+          </figure>
+        </div>
+
+        <div class="image-grid">
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/umbrella/4dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">4DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/umbrella/d3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">D3DGS (CVPR24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/umbrella/ed3dgs_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">E-D3DGS (ECCV24)</figcaption>
+          </figure>
+          <figure class="image-item">
+            <img src="./MoDyGS/new_figure/diff/Nvidia_diff_rebuttal/umbrella/ours_heatmap.jpg" alt="Balloon">
+            <figcaption style="text-align:center; font-weight: bold;">Ours</figcaption>
+          </figure>
+        </div>
+
+      <button class="next-btn1">&gt;</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- fail case -->
+<div class="content">
+  <h2>Various Cases of Non-masked Resion</h2>
+  <p></p>
+  
+  <div class="content_small">
+    <h3>Succeed case</h3>
+    <img class="summary-img" src="./MoDyGS/new_figure/succeed.jpg" style="width:100%;">
+  </div>
+
+  <div class="content_small">
+    <h3>Failure case</h3>
+    <img class="summary-img" src="./MoDyGS/new_figure/fail.jpg" style="width:100%;">
+  </div>
+</div>
+
+<!-- 
+<div class="content">
+  <h2>Text-Guided View Synthesis</h2>
+  <p>Our technique can synthesized images with specified viewpoints for a subject cat (left to right: top, bottom, side and back views). Note that the generated poses are  different from the input poses, and the background changes in a realistic manner given a pose change. We also highlight the preservation of complex fur patterns on the subject cat's forehead.</p>
+  <br>
+  <img class="summary-img" src="./DreamBooth_files/novel_views.png" style="width:100%;"> <br>
+</div>
+
+<div class="content">
+  <h2>Property Modification</h2>
+  <p>We show color modifications in the first row (using prompts ``a [color] [V] car''), and crosses between a specific dog and different animals in the second row (using prompts ``a cross of a [V] dog and a [target species]''). We highlight the fact that our method preserves unique visual features that give the subject its identity or essence, while performing the required property modification.</p>
+  <br>
+  <img class="summary-img" src="./DreamBooth_files/property_modification.png" style="width:100%;"> <br>
+</div>
+
+<div class="content">
+  <h2>Accessorization</h2>
+  <p>Outfitting a dog with accessories. The identity of the subject is preserved and many different outfits or accessories can be applied to the dog given a prompt of type <em>"a [V] dog wearing a police/chef/witch outfit''</em>. We observe a realistic interaction between the subject dog and the outfits or accessories, as well as a large variety of possible options.</p>
+  <br>
+  <img class="summary-img" src="./DreamBooth_files/accessories.png" style="width:100%;"> <br>
+</div>
+
+<div class="content">
+  <h2>Societal Impact</h2>
+  <p>This project aims to provide users with an effective tool for synthesizing personal subjects (animals, objects) in different contexts. While general text-to-image models might be biased towards specific attributes when synthesizing images from text, our approach enables the user to get a better reconstruction of their desirable subjects. On contrary, malicious parties might try to use such images to mislead viewers. This is a common issue, existing in other generative models approaches or content manipulation techniques. Future research in generative modeling, and specifically of personalized generative priors, must continue investigating and revalidating these concerns.</p>
+  <br>
+</div> -->
+
+<!-- <div class="content">
+  <h2>BibTex</h2>
+  <code> @article{ruiz2022dreambooth,<br>
+  &nbsp;&nbsp;title={DreamBooth: Fine Tuning Text-to-image Diffusion Models for Subject-Driven Generation},<br>
+  &nbsp;&nbsp;author={Ruiz, Nataniel and Li, Yuanzhen and Jampani, Varun and Pritch, Yael and Rubinstein, Michael and Aberman, Kfir},<br>
+  &nbsp;&nbsp;booktitle={arXiv preprint arxiv:2208.12242},<br>
+  &nbsp;&nbsp;year={2022}<br>
+  } </code> 
+</div>
+
+<div class="content" id="acknowledgements">
+  <p><strong>Acknowledgements</strong>:
+    We thank Rinon Gal, Adi Zicher, Ron Mokady, Bill Freeman, Dilip Krishnan, Huiwen Chang and Daniel Cohen-Or for their valuable inputs that helped improve this work, and to Mohammad Norouzi, Chitwan Saharia and William Chan for providing us with their support and the pretrained models of Imagen. Finally, a special thank you to David Salesin for his feedback, advice and for his support for the project.
+  </p>
+</div> -->
+
+</body>
+</html>

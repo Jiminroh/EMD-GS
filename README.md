@@ -1,1 +1,1 @@
-# EMD-GS
+# Monocular Dynamic Gaussian Splatting: Static and Dynamic Scenes Separation without Initialization
